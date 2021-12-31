@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int            @id @default(autoincrement())
+  username            String         @unique @db.VarChar(30)
+  email               String         @unique
+  name                String
+  password            String
+  about_me            String?        @db.Text
+  facebook            String?
+  twitter             String?
+  spotify             String?
+  tumblr              String?
+  created_at          DateTime       @default(now())
+  updated_at          DateTime?      @updatedAt
+  updated_password    DateTime?
+  deleted_at          DateTime?
+  birthed_at          DateTime?
+  activated           Boolean        @default(false)
+  Token               Token[]
+  Image               Image[]
+  ConnectionUser      Connection[]   @relation("ConnectionUserId")
+  ConnectionFollowing Connection[]   @relation("ConnectionFollowingId")
+  Note                Note[]
+  SenderMessage       Message[]      @relation("SenderMessage")
+  ReceiverMessage     Message[]      @relation("ReceiverMessage")
+  Project             Project[]
+  Counter             Counter[]
+  Bookcase            Bookcase[]
+  Notification        Notification[]
+  Comment             Comment[]
+
+  @@map("users")
+}
+
+model Token {
+  id                        Int       @id @default(autoincrement())
+  user                      User      @relation(fields: [user_id], references: [id])
+  user_id                   Int
+  tokenActivate             String    @unique @db.VarChar(50)
+  tokenActivateExpires      DateTime
+  tokenPasswordReset        String?   @unique @db.VarChar(50)
+  tokenPasswordResetExpires DateTime?
+
+  @@map("tokens")
+}
+
+model Image {
+  id         Int      @id @default(autoincrement())
+  name       String
+  size       Int      @db.MediumInt
+  path       String
+  key        String   @unique
+  type       String?  @db.Char(1)
+  User       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  Project    Project? @relation(fields: [project_id], references: [id])
+  project_id Int?
+
+
+  @@map("images")
+}
+
+model Connection {
+  user_id      Int
+  User         User           @relation("ConnectionUserId", fields: [user_id], references: [id], onDelete: Cascade)
+  following_id Int
+  Folloging    User           @relation("ConnectionFollowingId", fields: [following_id], references: [id], onDelete: Cascade)
+  Notification Notification[]
+
+  @@id([user_id, following_id])
+  @@map("connections")
+}
+
+model Note {
+  id        Int       @id @default(autoincrement())
+  User      User?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id   Int?
+  content   String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("notes")
+}
+
+model Message {
+  id               Int            @id @default(autoincrement())
+  sender_user_id   Int
+  SenderMessage    User           @relation("SenderMessage", fields: [sender_user_id], references: [id], onDelete: Cascade)
+  receiver_user_id Int
+  ReceiverMessage  User           @relation("ReceiverMessage", fields: [receiver_user_id], references: [id], onDelete: Cascade)
+  subject          String         @db.VarChar(50)
+  content          Bytes          @db.LongBlob
+  favorites        Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  deletedAt        DateTime?
+  readedAt         DateTime?
+  spam             Boolean        @default(false)
+  Notification     Notification[]
+
+  @@map("messages")
+}
+
+model Warning {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  @@map("warnings")
+}
+
+model Category {
+  id           Int            @id @default(autoincrement())
+  name         String
+  Fandom       Fandom[]
+  Relationship Relationship[]
+
+  @@map("categories")
+}
+
+model Fandom {
+  id           Int            @id @default(autoincrement())
+  name         String
+  Category     Category?      @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id  Int?
+  Relationship Relationship[]
+
+  @@map("fandoms")
+}
+
+model Relationship {
+  id          Int       @id @default(autoincrement())
+  name        String
+  Category    Category? @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id Int?
+  Fandom      Fandom?   @relation(fields: [fandom_id], references: [id], onDelete: Cascade)
+  fandom_id   Int?
+  Project     Project[]
+
+  @@map("relationships")
+}
+
+model Attribute {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  @@map("attributes")
+}
+
+model Modality {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Project Project[]
+
+  @@map("modalities")
+}
+
+model Shelve {
+  id       Int        @id @default(autoincrement())
+  name     String
+  Bookcase Bookcase[]
+
+  @@map("shelves")
+}
+
+model Project {
+  id                      Int            @id @default(autoincrement())
+  name                    String         @map("name")
+  User                    User?          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id                 Int
+  published               Boolean        @default(false) @map("published")
+  synopsis                String         @db.MediumText
+  link_twitter            String?
+  category_id             String         @db.LongText
+  fandom_id               String?        @db.LongText
+  Relationship_main       Relationship?  @relation(fields: [relationship_main_id], references: [id], onDelete: Restrict)
+  relationship_main_id    Int?
+  Relationships_secondary String?        @db.LongText
+  classification          String         @db.VarChar(10)
+  status                  String         @default("A") @db.Char(1)
+  Modality                Modality?      @relation(fields: [modality_id], references: [id], onDelete: Restrict)
+  modality_id             Int?
+  warning_id              String?        @map("warningId") @db.LongText
+  attribute_id            String?        @db.LongText
+  created_at              DateTime       @default(now())
+  updated_at              DateTime?      @updatedAt
+  deleted_at              DateTime?
+  Chapter                 Chapter[]
+  Counter                 Counter[]
+  Bookcase                Bookcase[]
+  Notification            Notification[]
+  Image                   Image[]
+  Comment                 Comment[]
+
+  @@map("projects")
+}
+
+model Chapter {
+
+  id            Int            @id @default(autoincrement())
+  name          String
+  number        Int
+  Project       Project?       @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  project_id    Int?
+  published     Boolean        @default(false) @map("published")
+  opening_notes String?        @db.Text
+  content       Bytes          @db.LongBlob
+  final_notes   String?        @db.Text
+  warning_id    String?        @map("warningId") @db.LongText
+  created_at    DateTime       @default(now())
+  updated_at    DateTime?      @updatedAt
+  deleted_at    DateTime?
+  Counter       Counter[]
+  Bookcase      Bookcase[]
+  LastChapter   Bookcase[]     @relation("lastChapter")
+  Notification  Notification[]
+  Comment       Comment[]
+  @@map("chapters")
+}
+
+model Comment {
+  id         Int       @id @default(autoincrement())
+  User       User?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id    Int?
+  Project    Project?  @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  project_id Int?
+  Chapter    Chapter?  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  chapter_id Int?
+  content    Bytes     @db.LongBlob
+  comment_id Int?
+  comment    Comment?  @relation("CommentMain", fields: [comment_id], references: [id], onDelete: SetNull)
+  Comment    Comment[] @relation("CommentMain")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("comments")
+}
+
+model Counter {
+  id         Int      @id @default(autoincrement())
+  views      Int      @default(0)
+  Project    Project? @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  project_id Int?
+  Chapter    Chapter? @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  chapter_id Int?
+  User       User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id    Int?
+
+  @@map("counters")
+}
+
+model Bookcase {
+  id           Int      @id @default(autoincrement())
+  User         User?    @relation(fields: [user_id], references: [id])
+  user_id      Int?     @unique
+  Project      Project? @relation(fields: [project_id], references: [id])
+  project_id   Int?     @unique
+  Chapter      Chapter? @relation(fields: [chapter_id], references: [id])
+  chapter_id   Int?
+  Shelve       Shelve?  @relation(fields: [shelve_id], references: [id])
+  shelve_id    Int?     @unique @default(2)
+  suggest      Boolean  @default(false)
+  LastChapter  Chapter? @relation("lastChapter", fields: [last_chapter], references: [id])
+  last_chapter Int?
+
+  @@map("bookcases")
+}
+
+model Event {
+  id           Int            @id @default(autoincrement())
+  name         String
+  Notification Notification[]
+
+  @@map("events")
+}
+
+model Notification {
+  id                 Int         @id @default(autoincrement())
+  User               User?       @relation(fields: [userId], references: [id])
+  userId             Int?
+  Connection         Connection? @relation(fields: [connection_user_id], references: [user_id])
+  connection_user_id Int?
+  Message            Message?    @relation(fields: [message_id], references: [id])
+  message_id         Int?
+  Project            Project?    @relation(fields: [project_id], references: [id])
+  project_id         Int?
+  Chapter            Chapter?    @relation(fields: [chapter_id], references: [id])
+  chapter_id         Int?
+  Event              Event?      @relation(fields: [event_id], references: [id])
+  event_id           Int?
+
+  @@map("notifications")
+}
