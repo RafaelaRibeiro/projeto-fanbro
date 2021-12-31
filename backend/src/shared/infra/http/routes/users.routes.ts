@@ -1,5 +1,6 @@
 import { ActivateUserController } from "@modules/accounts/useCases/activateUser/ActivateUserController";
 import { CreateUserController } from "@modules/accounts/useCases/createUser/CreateUserController";
+import { ensureAuthenticateUser } from "../middlewares/ensureAuthenticateUsers";
 import { Router } from "express";
 const userRouter = Router();
 
