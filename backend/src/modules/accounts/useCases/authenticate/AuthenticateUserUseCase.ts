@@ -20,7 +20,7 @@ export class AuthenticateUserUseCase {
     if (!passwordMatch) throw new Error("E-mail or password invalid");
 
     const token = sign({ email }, "47fe02b508e7b8a23d38db6e787fd4ba", {
-      subject: checkUser.username,
+      subject: checkUser.id.toString(),
       expiresIn: "7d",
     });
 

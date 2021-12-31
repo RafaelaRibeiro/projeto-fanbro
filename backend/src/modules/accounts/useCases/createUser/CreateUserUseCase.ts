@@ -29,7 +29,7 @@ export class CreateUserUseCase {
     const user = await prisma.user.create({
       data: {
         name,
-        username,
+        username: username.toLowerCase(),
         email,
         password: passwordHash,
         Token: {
@@ -44,7 +44,7 @@ export class CreateUserUseCase {
               {
                 name,
                 size: 0,
-                path: `https://robohash.org/${username}?set=set4`,
+                path: `https://robohash.org/${username.toLowerCase()}?set=set4`,
                 key: tokens.keyPerfil,
                 type: "U",
               },
