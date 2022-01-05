@@ -1,14 +1,14 @@
 import { prisma } from "src/shared/infra/prisma/prisma";
 
 interface IUnfollow {
-  user_id: string;
+  user_id: number;
   following_id: number;
 }
 export class UnfollowUseCase {
   async execute({ user_id, following_id }: IUnfollow) {
     const checkConnection = await prisma.connection.findUnique({
       where: {
-        user_id_following_id: { user_id: Number(user_id), following_id },
+        user_id_following_id: { user_id, following_id },
       },
     });
 
@@ -16,7 +16,7 @@ export class UnfollowUseCase {
 
     await prisma.connection.delete({
       where: {
-        user_id_following_id: { user_id: Number(user_id), following_id },
+        user_id_following_id: { user_id, following_id },
       },
     });
   }

@@ -1,7 +1,7 @@
 import { prisma } from "src/shared/infra/prisma/prisma";
 
 interface ICreateNotes {
-  user_id: string;
+  user_id: number;
   content: string;
 }
 
@@ -11,7 +11,7 @@ export class CreateNotesUseCase {
 
     const note = await prisma.note.create({
       data: {
-        user_id: Number(user_id),
+        user_id,
         content,
       },
     });

@@ -26,7 +26,7 @@ export async function ensureAuthenticate(
       "47fe02b508e7b8a23d38db6e787fd4ba"
     ) as IPayload;
 
-    request.user_id = sub;
+    request.user_id = Number(sub);
 
     return next();
   } catch (error) {

@@ -2,8 +2,11 @@ import express, { NextFunction, Request, Response } from "express";
 import "express-async-errors";
 import { router } from "./routes";
 
+import bodyParser from "body-parser";
+
 const app = express();
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(router);
 
 app.use(

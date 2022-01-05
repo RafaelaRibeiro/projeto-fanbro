@@ -1,7 +1,7 @@
 import { prisma } from "src/shared/infra/prisma/prisma";
 
 interface IUpdateNotes {
-  user_id: string;
+  user_id: number;
   note_id: string;
   content: string;
 }
@@ -9,7 +9,7 @@ interface IUpdateNotes {
 export class UpdateNotesUseCase {
   async execute({ user_id, note_id, content }: IUpdateNotes) {
     const checkUser = await prisma.note.findFirst({
-      where: { id: Number(note_id), user_id: Number(user_id) },
+      where: { id: Number(note_id), user_id },
     });
 
     if (!checkUser) throw new Error("Notes invalid");
@@ -17,7 +17,7 @@ export class UpdateNotesUseCase {
     const updateNote = await prisma.note.updateMany({
       where: {
         id: Number(note_id),
-        user_id: Number(user_id),
+        user_id,
       },
       data: {
         content,

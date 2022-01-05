@@ -1,14 +1,14 @@
 import { prisma } from "src/shared/infra/prisma/prisma";
 
 interface IDeleteNote {
-  user_id: string;
+  user_id: number;
   note_id: string;
 }
 
 export class DeleteNotesUseCase {
   async execute({ user_id, note_id }: IDeleteNote) {
     const checkUser = await prisma.note.findFirst({
-      where: { id: Number(note_id), user_id: Number(user_id) },
+      where: { id: Number(note_id), user_id },
     });
 
     if (!checkUser) throw new Error("Notes invalid");
@@ -16,7 +16,7 @@ export class DeleteNotesUseCase {
     const deleteNote = await prisma.note.deleteMany({
       where: {
         id: Number(note_id),
-        user_id: Number(user_id),
+        user_id,
       },
     });
 

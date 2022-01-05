@@ -10,7 +10,7 @@ INNER JOIN images u ON u.user_id = connections.following_id AND u.type = 'U'
 INNER JOIN images b ON b.user_id = connections.following_id AND b.type = 'B'
 
 WHERE
-connections.user_id = ${Number(user_id)}`;
+connections.user_id = ${user_id}`;
 
     return { following };
   }
