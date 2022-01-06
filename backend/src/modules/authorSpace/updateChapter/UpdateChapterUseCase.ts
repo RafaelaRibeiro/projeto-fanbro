@@ -1,12 +1,13 @@
+import { Chapter } from "@prisma/client";
 import { prisma } from "src/shared/infra/prisma/prisma";
 
-interface IDeleteChapter {
+interface IUpdateChapter {
   user_id: number;
   chapter_id: string;
 }
 
-export class DeleteChapterUseCase {
-  async execute({ user_id, chapter_id }: IDeleteChapter) {
+export class UpdateChapterUseCase {
+  async execute({ user_id, chapter_id }: IUpdateChapter, chapter: Chapter) {
     const checkChapter = await prisma.chapter.findFirst({
       where: {
         id: Number(chapter_id),
@@ -16,11 +17,11 @@ export class DeleteChapterUseCase {
 
     if (!checkChapter) throw new Error("Chapter invalid");
 
-    const deleteChapter = await prisma.chapter.update({
+    const updateChapter = await prisma.chapter.update({
       where: { id: Number(chapter_id) },
-      data: { deleted_at: new Date() },
+      data: { ...chapter },
     });
 
-    return deleteChapter;
+    return updateChapter;
   }
 }
